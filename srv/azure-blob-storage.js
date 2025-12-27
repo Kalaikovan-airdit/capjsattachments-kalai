@@ -2,6 +2,7 @@ const { BlobServiceClient } = require('@azure/storage-blob')
 const cds = require("@sap/cds")
 const LOG = cds.log('attachments')
 const utils = require('../lib/helper')
+const { fetchfromDestination } = require('../lib/destinations')
 
 module.exports = class AzureAttachmentsService extends require("./object-store") {
 
@@ -10,10 +11,8 @@ module.exports = class AzureAttachmentsService extends require("./object-store")
    * @returns {Promise<{blobServiceClient: import('@azure/storage-blob').BlobServiceClient, containerClient: import('@azure/storage-blob').ContainerClient}>}
    */
   async retrieveClient() {
-    try{
-    const container_name="aisp"
-      const sas_token="sp=rcwdl&st=2025-12-26T10:41:33Z&se=2030-12-25T18:56:33Z&spr=https&sv=2024-11-04&sr=c&sig=i5ENp1nzh0GrnNd%2FCAnkBBK3vCrHI8vCnHS9og%2F8P8I%3D"
-      const container_uri="https://aairdoc9262.blob.core.windows.net"
+    try {
+      const { container_name, container_uri, sas_token } = await fetchfromDestination('aisp-attachments');
 
       const blobServiceClient = new BlobServiceClient(container_uri + "?" + sas_token)
       const containerClient = blobServiceClient.getContainerClient(container_name)
@@ -21,19 +20,18 @@ module.exports = class AzureAttachmentsService extends require("./object-store")
       const newAzureCredentials = {
         containerClient,
       }
-
-      this.clientsCache.set(newAzureCredentials)
+      const tenant = cds.context.tenant || 'default';
+      this.clientsCache.set(tenant, newAzureCredentials);
 
       LOG.debug('Azure Blob Storage client has been created successful', {
-        
+
         containerName: containerClient.containerName
       })
       return newAzureCredentials;
     } catch (error) {
       LOG.error(
         'Failed to create tenant-specific Azure Blob Storage client', error,
-        'Check Service Manager and Azure Blob Storage instance configuration',
-        { tenantID })
+        'Check Service Manager and Azure Blob Storage instance configuration')
       throw error
     }
   }

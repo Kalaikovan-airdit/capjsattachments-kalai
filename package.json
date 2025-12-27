@@ -1,7 +1,7 @@
 {
   "name": "kalai-attach",
   "description": "CAP cds-plugin providing image and attachment storing out-of-the-box.",
-  "version": "1.0.0",
+  "version": "1.0.24",
   "repository": "capjsattachments-kalai",
   "author": "Kalai",
   "homepage": "https://github.com/Kalaikovan-airdit",
@@ -16,15 +16,15 @@
   ],
   "scripts": {
     "lint": "npx eslint .",
-    "test": "npx jest --silent=true --runInBand",
-    "release": "release-it"
+    "test": "npx jest --silent=true --runInBand"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.918.0",
     "@aws-sdk/lib-storage": "^3.918.0",
     "@azure/storage-blob": "^12.29.1",
     "@google-cloud/storage": "^7.17.3",
-    "axios": "^1.4.0"
+    "@sap/xsenv": "^6.0.0",
+    "axios": "^1.13.2"
   },
   "devDependencies": {
     "@cap-js/cds-test": ">=0",
@@ -41,24 +41,59 @@
   },
   "cds": {
     "requires": {
+      "malwareScanner": {
+        "vcap": {
+          "label": "malware-scanner"
+        }
+      },
       "kinds": {
         "attachments-azure": {
-          "impl": "./srv/azure-blob-storage"
+          "impl": "kalai-attach/srv/azure-blob-storage"
         },
         "malwareScanner-mocked": {
-          "model": "./srv/malwareScanner-mocked"
+          "model": "kalai-attach/srv/malwareScanner-mocked"
+        },
+        "malwareScanner": {
+          "model": "kalai-attach/srv/malwareScanner-mocked"
+        },
+        "malwareScanner-btp": {
+          "model": "kalai-attach/attachments/srv/malwareScanner"
         }
       },
       "attachments": {
         "kind": "attachments-azure",
-        "scan": false,
+        "scan": true,
         "outbox": true
       },
       "[development]": {
-        "attachments": { "kind": "attachments-azure" }
+        "attachments": {
+          "kind": "attachments-azure",
+          "scan": true,
+          "outbox": true
+        },
+        "malwareScanner": {
+          "kind": "malwareScanner-mocked"
+        }
       },
       "[production]": {
-        "attachments": { "kind": "attachments-azure" }
+        "attachments": {
+          "kind": "attachments-azure",
+          "outbox": true,
+          "scan": true
+        },
+        "malwareScanner": {
+          "kind": "malwareScanner-btp"
+        }
+      },
+      "[hybrid]": {
+        "malwareScanner": {
+          "kind": "malwareScanner-mocked"
+        },
+        "attachments": {
+          "kind": "attachments-azure",
+          "scan": true,
+          "outbox": true
+        }
       }
     }
   },
