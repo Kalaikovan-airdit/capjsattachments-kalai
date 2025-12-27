@@ -10,56 +10,22 @@ module.exports = class AzureAttachmentsService extends require("./object-store")
    * @returns {Promise<{blobServiceClient: import('@azure/storage-blob').BlobServiceClient, containerClient: import('@azure/storage-blob').ContainerClient}>}
    */
   async retrieveClient() {
-    const tenantID = this.separateObjectStore ? cds.context.tenant : 'shared'
-    LOG.debug('Retrieving tenant-specific Azure Blob Storage client', { tenantID })
+    try{
+    const container_name="aisp"
+      const sas_token="sp=rcwdl&st=2025-12-26T10:41:33Z&se=2030-12-25T18:56:33Z&spr=https&sv=2024-11-04&sr=c&sig=i5ENp1nzh0GrnNd%2FCAnkBBK3vCrHI8vCnHS9og%2F8P8I%3D"
+      const container_uri="https://aairdoc9262.blob.core.windows.net"
 
-    const existingClient = this.clientsCache.get(tenantID)
-    if (existingClient) {
-      LOG.debug('Using cached Azure Blob Storage client', {
-        tenantID,
-        containerName: existingClient.containerClient.containerName
-      })
-      return existingClient
-    }
-
-    try {
-      LOG.debug('Fetching object store credentials for tenant', { tenantID })
-      const credentials = this.separateObjectStore
-        ? (await utils.getObjectStoreCredentials(tenantID))?.credentials
-        : cds.env.requires?.objectStore?.credentials
-
-      if (!credentials) {
-        throw new Error("SAP Object Store instance is not bound.")
-      }
-
-      const requiredFields = ['container_name', 'container_uri', 'sas_token']
-      const missingFields = requiredFields.filter(field => !credentials[field])
-
-      if (missingFields.length > 0) {
-        if (credentials.access_key_id) {
-          throw new Error('AWS S3 credentials found where Azure Blob Storage credentials expected, please check your service bindings.')
-        } else if (credentials.projectId) {
-          throw new Error('Google Cloud Platform credentials found where Azure Blob Storage credentials expected, please check your service bindings.')
-        }
-        throw new Error(`Missing Azure Blob Storage credentials: ${missingFields.join(', ')}`)
-      }
-
-      LOG.debug('Creating Azure Blob Storage client for tenant', {
-        tenantID,
-        containerName: credentials.container_name
-      })
-
-      const blobServiceClient = new BlobServiceClient(credentials.container_uri + "?" + credentials.sas_token)
-      const containerClient = blobServiceClient.getContainerClient(credentials.container_name)
+      const blobServiceClient = new BlobServiceClient(container_uri + "?" + sas_token)
+      const containerClient = blobServiceClient.getContainerClient(container_name)
 
       const newAzureCredentials = {
         containerClient,
       }
 
-      this.clientsCache.set(tenantID, newAzureCredentials)
+      this.clientsCache.set(newAzureCredentials)
 
       LOG.debug('Azure Blob Storage client has been created successful', {
-        tenantID,
+        
         containerName: containerClient.containerName
       })
       return newAzureCredentials;

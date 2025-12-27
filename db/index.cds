@@ -1,5 +1,5 @@
 // The common root-level aspect used in applications like that:
-// using { Attachments } from '@cap-js/attachments'
+// using { Attachments } from 'kalai-attach'
 aspect Attachments : sap.attachments.Attachments {}
 
 using {

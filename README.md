@@ -2,7 +2,7 @@
 
 # Attachments Plugin
 
-The `@cap-js/attachments` package is a [CDS plugin](https://cap.cloud.sap/docs/node.js/cds-plugins#cds-plugin-packages) that provides out-of-the box asset storage and handling by using an [*aspect*](https://cap.cloud.sap/docs/cds/cdl#aspects) called `Attachments`. It also provides a CAP-level, easy-to-use integration of the [SAP Object Store](https://help.sap.com/docs/object-store/object-store-service-on-sap-btp/what-is-object-store).
+The `kalai-attach` package is a [CDS plugin](https://cap.cloud.sap/docs/node.js/cds-plugins#cds-plugin-packages) that provides out-of-the box asset storage and handling by using an [*aspect*](https://cap.cloud.sap/docs/cds/cdl#aspects) called `Attachments`. It also provides a CAP-level, easy-to-use integration of the [SAP Object Store](https://help.sap.com/docs/object-store/object-store-service-on-sap-btp/what-is-object-store).
 
 ### Table of Contents
 
@@ -35,7 +35,7 @@ For a quick local development setup with in-memory storage:
 
 - The plugin is self-configuring as described, see the following details section. To enable attachments, simply add the plugin package to your project:  
   ```sh
-  npm add @cap-js/attachments
+  npm add kalai-attach
   ```
 
   <details>
@@ -43,7 +43,7 @@ For a quick local development setup with in-memory storage:
 
     ```cds
     "devDependencies": { 
-      "@cap-js/attachments": "<latest-version>", 
+      "kalai-attach": "<latest-version>", 
       // (...)
     }
     ```
@@ -68,7 +68,7 @@ For a quick local development setup with in-memory storage:
 - To use Attachments, extend a CDS model by adding an element that refers to the pre-defined Attachments type (see [Changes in the CDS Models](#changes-in-the-cds-models) for more details): 
 
   ```cds
-  using { Attachments } from '@cap-js/attachments';
+  using { Attachments } from 'kalai-attach';
 
   entity Incidents {  
       // (...)
@@ -111,7 +111,7 @@ Go to object page for incident **Solar panel broken**
 To use the aspect `Attachments` on an existing entity, the corresponding entity needs to either include attachments as an element in the model definition or be extended in a CDS file in the `srv` module. In the quick start, the former was done, adding an element to the model definition: 
 
 ```cds
-using { Attachments } from '@cap-js/attachments';  
+using { Attachments } from 'kalai-attach';  
 
 entity Incidents {  
   // ...  
@@ -122,7 +122,7 @@ entity Incidents {
 The entity Incidents can also be extended in the `srv` module, as seen in the following example:
 
 ```cds
-using { Attachments } from '@cap-js/attachments'; 
+using { Attachments } from 'kalai-attach'; 
 
 extend my.Incidents with { 
   attachments: Composition of many Attachments; 
@@ -297,7 +297,7 @@ When a file with a disallowed MIME type is uploaded, the request will be rejecte
 
 ## Releases
 
-- The plugin is released to [NPM Registry](https://www.npmjs.com/package/@cap-js/attachments).
+- The plugin is released to [NPM Registry](https://www.npmjs.com/package/kalai-attach).
 - See the [changelog](./CHANGELOG.md) or [GitHub Releases](https://github.com/cap-js/attachments/releases) for the latest changes.
 
 ## Minimum UI5 and CAP NodeJS Version
@@ -315,7 +315,7 @@ The plugin supports multi-tenancy scenarios, allowing both shared and tenant-spe
 > [!Note]
 > Starting from version 2.1.0, **separate mode** for object store instances is the default setting for multi-tenancy.  
 
-For multi-tenant applications, `@cap-js/attachments` must be included in the dependencies of both the application-level and _mtx/sidecar/package.json_ files.
+For multi-tenant applications, `kalai-attach` must be included in the dependencies of both the application-level and _mtx/sidecar/package.json_ files.
 
 #### Separate object store instances
 
