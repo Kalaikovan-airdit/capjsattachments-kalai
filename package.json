@@ -1,0 +1,126 @@
+{
+  "name": "@cap-js/attachments",
+  "description": "CAP cds-plugin providing image and attachment storing out-of-the-box.",
+  "version": "3.5.0",
+  "repository": "cap-js/attachments",
+  "author": "SAP SE (https://www.sap.com)",
+  "homepage": "https://cap.cloud.sap/",
+  "license": "Apache-2.0",
+  "main": "cds-plugin.js",
+  "files": [
+    "index.cds",
+    "_i18n",
+    "lib",
+    "db",
+    "srv"
+  ],
+  "scripts": {
+    "lint": "npx eslint .",
+    "test": "npx jest --silent=true --runInBand"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.918.0",
+    "@aws-sdk/lib-storage": "^3.918.0",
+    "@azure/storage-blob": "^12.29.1",
+    "@google-cloud/storage": "^7.17.3",
+    "axios": "^1.4.0"
+  },
+  "devDependencies": {
+    "@cap-js/cds-test": ">=0",
+    "@cap-js/sqlite": "^2",
+    "eslint": "^9.36.0",
+    "express": "^4.18.2"
+  },
+  "peerDependencies": {
+    "@sap/cds": ">=8"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "cds": {
+    "requires": {
+      "malwareScanner": {
+        "vcap": {
+          "label": "malware-scanner"
+        }
+      },
+      "kinds": {
+        "malwareScanner-mock": {
+          "model": "@cap-js/attachments/srv/malwareScanner-mocked"
+        },
+        "malwareScanner-mocked": {
+          "model": "@cap-js/attachments/srv/malwareScanner-mocked"
+        },
+        "malwareScanner-btp": {
+          "model": "@cap-js/attachments/srv/malwareScanner"
+        },
+        "attachments-db": {
+          "impl": "@cap-js/attachments/srv/basic"
+        },
+        "attachments-standard": {
+          "impl": "@cap-js/attachments/srv/standard"
+        },
+        "attachments-s3": {
+          "impl": "@cap-js/attachments/srv/aws-s3"
+        },
+        "attachments-azure": {
+          "impl": "@cap-js/attachments/srv/azure-blob-storage"
+        },
+        "attachments-gcp": {
+          "impl": "@cap-js/attachments/srv/gcp"
+        }
+      },
+      "serviceManager": {
+        "vcap": {
+          "label": "service-manager"
+        }
+      },
+      "objectStore": {
+        "vcap": {
+          "label": "objectstore"
+        }
+      },
+      "attachments": {
+        "outbox": true,
+        "scan": true,
+        "objectStore": {
+          "kind": "separate"
+        }
+      },
+      "[development]": {
+        "malwareScanner": {
+          "kind": "malwareScanner-mocked"
+        },
+        "attachments": {
+          "kind": "db"
+        }
+      },
+      "[production]": {
+        "malwareScanner": {
+          "kind": "malwareScanner-btp"
+        },
+        "attachments": {
+          "kind": "standard",
+          "objectStore": {
+            "kind": "separate"
+          }
+        }
+      },
+      "[hybrid]": {
+        "malwareScanner": {
+          "kind": "malwareScanner-btp"
+        },
+        "attachments": {
+          "kind": "standard",
+          "scan": true,
+          "objectStore": {
+            "kind": "separate"
+          }
+        }
+      }
+    }
+  },
+  "workspaces": [
+    "tests/incidents-app/"
+  ]
+}
